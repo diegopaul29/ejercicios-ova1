@@ -65,7 +65,7 @@ def ejecutar_codigo(req: EjercicioRequest):
     sys.stdout = old_stdout
     salida_consola = new_stdout.getvalue()
 
-    # 5. Tutor IA con análisis detallado del error
+    # 5. Tutor IA con análisis detallado del error usando gemini-3.8-flash
     explicacion_ia = ""
     if not exito:
         prompt_tutor = (
@@ -80,7 +80,7 @@ def ejecutar_codigo(req: EjercicioRequest):
         )
         try:
             response = client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-3.8-flash",
                 contents=prompt_tutor
             )
             explicacion_ia = response.text
