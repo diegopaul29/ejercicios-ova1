@@ -20,7 +20,7 @@ app.add_middleware(
 # Inicializar cliente de Gemini (asegúrate de tener tu GEMINI_API_KEY en las variables de entorno)
 client = genai.Client()
 
-class EjercicioRequest(BaseModel.Model):
+class EjercicioRequest(BaseModel):
     codigo: str
 
 @app.post("/ejecutar")
