@@ -96,7 +96,7 @@ def ejecutar_codigo(req: CodigoRequest):
             )
             try:
                 ai_res = ai_client.models.generate_content(
-                    model="gemini-2.5-flash", contents=prompt
+                    model="gemini-3.8-flash", contents=prompt
                 )
                 explicacion = ai_res.text
             except Exception as ex_ia:
@@ -120,7 +120,7 @@ def ejecutar_codigo(req: CodigoRequest):
             )
             try:
                 ai_res = ai_client.models.generate_content(
-                    model="gemini-2.5-flash", contents=prompt
+                    model="gemini-3.8-flash", contents=prompt
                 )
                 explicacion = ai_res.text
             except Exception as ex_ia:
