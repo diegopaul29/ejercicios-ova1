@@ -1,6 +1,7 @@
 import io
 import sys
 import traceback
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,8 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Inicializar cliente de Gemini (asegúrate de tener tu GEMINI_API_KEY en las variables de entorno)
-client = genai.Client()
+# Inicializar cliente de Gemini tomando explícitamente la variable de entorno
+api_key = os.environ.get("GEMINI_API_KEY")
+client = genai.Client(api_key=api_key)
 
 class EjercicioRequest(BaseModel):
     codigo: str
@@ -27,10 +29,10 @@ class EjercicioRequest(BaseModel):
 def ejecutar_codigo(req: EjercicioRequest):
     codigo_usuario = req.codigo
 
-    # 1. Sanitización de caracteres invisibles y tabulaciones
+    # 1. Sanitización de caracteres
     codigo_usuario = codigo_usuario.replace("\xa0", " ").expandtabs(4)
 
-    # 2. Aislar el código escrito por el alumno después de la marca
+    # 2. Aislar código del alumno
     marca = "# Escribe tu código aquí abajo:"
     if marca in codigo_usuario:
         partes = codigo_usuario.split(marca)
@@ -38,7 +40,7 @@ def ejecutar_codigo(req: EjercicioRequest):
     else:
         codigo_a_evaluar = codigo_usuario
 
-    # 3. Validar si el espacio de código está vacío
+    # 3. Validar si está vacío
     if not codigo_a_evaluar.strip():
         return {
             "exito": False,
@@ -46,7 +48,7 @@ def ejecutar_codigo(req: EjercicioRequest):
             "mensaje_alerta": "ingrese el codigo solicitado"
         }
 
-    # 4. Capturar la salida estándar (print)
+    # 4. Capturar consola
     old_stdout = sys.stdout
     new_stdout = io.StringIO()
     sys.stdout = new_stdout
@@ -55,7 +57,6 @@ def ejecutar_codigo(req: EjercicioRequest):
     error_detalle = ""
 
     try:
-        # Ejecución segura en entorno aislado local
         exec(codigo_usuario, {})
     except Exception:
         exito = False
@@ -64,14 +65,18 @@ def ejecutar_codigo(req: EjercicioRequest):
     sys.stdout = old_stdout
     salida_consola = new_stdout.getvalue()
 
-    # 5. Si hay error, consultar al tutor de IA
+    # 5. Tutor IA con análisis detallado del error
     explicacion_ia = ""
     if not exito:
         prompt_tutor = (
             "Eres un profesor paciente de programación para principiantes absolutos. "
-            "El alumno intentó resolver un ejercicio básico de secuencias y obtuvo este error:\n"
+            "El alumno escribió un código en Python que generó el siguiente error:\n"
             f"{error_detalle}\n"
-            "Explica de forma muy sencilla, amable y en español qué falló y cómo corregirlo en máximo 3 líneas."
+            "Explica de forma muy sencilla, amable y en español exacto: "
+            "1. Qué causó el error. "
+            "2. En qué línea ocurrió (si aplica). "
+            "3. Cómo solucionarlo de forma directa. "
+            "Sé breve (máximo 4 líneas)."
         )
         try:
             response = client.models.generate_content(
@@ -79,10 +84,9 @@ def ejecutar_codigo(req: EjercicioRequest):
                 contents=prompt_tutor
             )
             explicacion_ia = response.text
-        except Exception:
-            explicacion_ia = "Revisa la sintaxis de tu código, parece haber un error tipográfico."
+        except Exception as e:
+            explicacion_ia = f"Error al conectar con el tutor IA: {str(e)}"
 
-    # Validar si completó correctamente el ejercicio
     mensaje_exito = ""
     if exito and salida_consola.strip():
         mensaje_exito = "¡Excelente! Has completado la secuencia algorítmica correctamente."
