@@ -13,6 +13,11 @@
         #main { flex: 1; display: flex; flex-direction: column; }
         #bar { height: 45px; background: #2d2d2d; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
         #btn { background: #28a745; color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+        
+        /* Contenedor de la instrucción fuera del editor */
+        #instruccion-container { background: #2d2d2d; padding: 12px 15px; border-bottom: 1px solid #3c3c3c; font-size: 14px; color: #d4d4d4; }
+        #instruccion-container strong { color: #4ec9b0; }
+
         #editor { flex: 2; }
         #output { flex: 1; background: #111; padding: 15px; border-top: 2px solid #3c3c3c; overflow-y: auto; font-family: monospace; }
         .ia-box { background: #3b1818; border-left: 4px solid #f44336; padding: 10px; margin-top: 10px; border-radius: 4px; font-family: sans-serif; white-space: pre-line; }
@@ -31,6 +36,12 @@
             <span id="title" style="font-weight:bold;"></span>
             <button id="btn" onclick="ejecutar()">▶ Ejecutar</button>
         </div>
+        
+        <!-- Panel visible de instrucción -->
+        <div id="instruccion-container">
+            <strong>Instrucción:</strong> <span id="texto-instruccion">Selecciona un ejercicio</span>
+        </div>
+
         <div id="editor"></div>
         <div id="output">
             <strong>Consola:</strong>
@@ -42,40 +53,40 @@
     <script>
         const ejercicios = [
             // BÁSICOS (1 - 10)
-            { id: 1, t: "1. Número Positivo", code: "# INSTRUCCIÓN: Si la variable 'numero' es mayor a 0, imprime 'Es positivo'.\nnumero = 10\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 2, t: "2. Mayoría de Edad", code: "# INSTRUCCIÓN: Si 'edad' es mayor o igual a 18, imprime 'Mayor de edad'.\nedad = 20\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 3, t: "3. Temperatura Alta", code: "# INSTRUCCIÓN: Si 'temp' es superior a 30, imprime 'Hace calor'.\ntemp = 35\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 4, t: "4. Contraseña Correcta", code: "# INSTRUCCIÓN: Si 'clave' es igual a '1234', imprime 'Acceso concedido'.\nclave = '1234'\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 5, t: "5. Calificación Aprobatoria", code: "# INSTRUCCIÓN: Si 'nota' es mayor o igual a 7, imprime 'Aprobado'.\nnota = 8\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 6, t: "6. Descuento Disponible", code: "# INSTRUCCIÓN: Si 'monto' es mayor a 100, imprime 'Aplica descuento'.\nmonto = 150\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 7, t: "7. Número Cero", code: "# INSTRUCCIÓN: Si 'num' es exactamente 0, imprime 'El número es cero'.\nnum = 0\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 8, t: "8. Sistema Encendido", code: "# INSTRUCCIÓN: Si 'activo' es True, imprime 'El sistema está activo'.\nactivo = True\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 9, t: "9. Alerta de Velocidad", code: "# INSTRUCCIÓN: Si 'velocidad' supera los 90, imprime 'Exceso de velocidad'.\nvelocidad = 95\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 10, t: "10. Lista No Vacía", code: "# INSTRUCCIÓN: Si 'elementos' tiene más de 0 elementos (usa len), imprime 'La lista tiene datos'.\nelementos = [1, 2, 3]\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 1, t: "1. Número Positivo", instr: "Si la variable 'numero' es mayor a 0, imprime 'Es positivo'.", code: "numero = 10\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 2, t: "2. Mayoría de Edad", instr: "Si 'edad' es mayor o igual a 18, imprime 'Mayor de edad'.", code: "edad = 20\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 3, t: "3. Temperatura Alta", instr: "Si 'temp' es superior a 30, imprime 'Hace calor'.", code: "temp = 35\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 4, t: "4. Contraseña Correcta", instr: "Si 'clave' es igual a '1234', imprime 'Acceso concedido'.", code: "clave = '1234'\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 5, t: "5. Calificación Aprobatoria", instr: "Si 'nota' es mayor o igual a 7, imprime 'Aprobado'.", code: "nota = 8\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 6, t: "6. Descuento Disponible", instr: "Si 'monto' es mayor a 100, imprime 'Aplica descuento'.", code: "monto = 150\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 7, t: "7. Número Cero", instr: "Si 'num' es exactamente 0, imprime 'El número es cero'.", code: "num = 0\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 8, t: "8. Sistema Encendido", instr: "Si 'activo' es True, imprime 'El sistema está activo'.", code: "activo = True\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 9, t: "9. Alerta de Velocidad", instr: "Si 'velocidad' supera los 90, imprime 'Exceso de velocidad'.", code: "velocidad = 95\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 10, t: "10. Lista No Vacía", instr: "Si 'elementos' tiene más de 0 elementos (usa len), imprime 'La lista tiene datos'.", code: "elementos = [1, 2, 3]\n\n# Escribe tu código aquí abajo:\n" },
 
             // INTERMEDIOS (11 - 20)
-            { id: 11, t: "11. Par o Impar", code: "# INSTRUCCIÓN: Si 'num' es par imprime 'Par', de lo contrario imprime 'Impar'.\nnum = 7\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 12, t: "12. Positivo o Negativo", code: "# INSTRUCCIÓN: Si 'n' es mayor o igual a 0 imprime 'Positivo', sino 'Negativo'.\nn = -5\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 13, t: "13. Pase de Entrada", code: "# INSTRUCCIÓN: Si 'tiene_ticket' es True imprime 'Bienvenido', sino 'Acceso denegado'.\ntiene_ticket = False\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 14, t: "14. Comparar Dos Números", code: "# INSTRUCCIÓN: Imprime cuál de los dos números (a o b) es el mayor.\na = 15\nb = 20\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 15, t: "15. Validar Usuario", code: "# INSTRUCCIÓN: Si 'usuario' es 'admin' imprime 'Hola Admin', sino 'Hola Usuario'.\nusuario = 'invitado'\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 16, t: "16. Stock Disponible", code: "# INSTRUCCIÓN: Si 'stock' es mayor a 0 imprime 'Disponible', sino 'Agotado'.\nstock = 0\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 17, t: "17. Múltiplo de 5", code: "# INSTRUCCIÓN: Si 'num' es múltiplo de 5 imprime 'Múltiplo de 5', sino 'No es múltiplo'.\nnum = 25\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 18, t: "18. Clima Lluvioso", code: "# INSTRUCCIÓN: Si 'lloviendo' es True imprime 'Lleva sombrilla', sino 'Disfruta el día'.\nlloviendo = True\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 19, t: "19. Longitud de Texto", code: "# INSTRUCCIÓN: Si el texto tiene más de 5 caracteres imprime 'Texto largo', sino 'Texto corto'.\ntexto = 'Hola'\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 20, t: "20. Batería Baja", code: "# INSTRUCCIÓN: Si 'bateria' es menor o igual a 15 imprime 'Conectar cargador', sino 'Batería suficiente'.\nbateria = 12\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 11, t: "11. Par o Impar", instr: "Si 'num' es par imprime 'Par', de lo contrario imprime 'Impar'.", code: "num = 7\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 12, t: "12. Positivo o Negativo", instr: "Si 'n' es mayor o igual a 0 imprime 'Positivo', sino 'Negativo'.", code: "n = -5\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 13, t: "13. Pase de Entrada", instr: "Si 'tiene_ticket' es True imprime 'Bienvenido', sino 'Acceso denegado'.", code: "tiene_ticket = False\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 14, t: "14. Comparar Dos Números", instr: "Imprime cuál de los dos números (a o b) es el mayor.", code: "a = 15\nb = 20\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 15, t: "15. Validar Usuario", instr: "Si 'usuario' es 'admin' imprime 'Hola Admin', sino 'Hola Usuario'.", code: "usuario = 'invitado'\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 16, t: "16. Stock Disponible", instr: "Si 'stock' es mayor a 0 imprime 'Disponible', sino 'Agotado'.", code: "stock = 0\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 17, t: "17. Múltiplo de 5", instr: "Si 'num' es múltiplo de 5 imprime 'Múltiplo de 5', sino 'No es múltiplo'.", code: "num = 25\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 18, t: "18. Clima Lluvioso", instr: "Si 'lloviendo' es True imprime 'Lleva sombrilla', sino 'Disfruta el día'.", code: "lloviendo = True\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 19, t: "19. Longitud de Texto", instr: "Si el texto tiene más de 5 caracteres imprime 'Texto largo', sino 'Texto corto'.", code: "texto = 'Hola'\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 20, t: "20. Batería Baja", instr: "Si 'bateria' es menor o igual a 15 imprime 'Conectar cargador', sino 'Batería suficiente'.", code: "bateria = 12\n\n# Escribe tu código aquí abajo:\n" },
 
             // AVANZADOS (21 - 30)
-            { id: 21, t: "21. Clasificar Edad", code: "# INSTRUCCIÓN: Clasifica según 'edad': menor a 12 'Niño', 12-17 'Joven', 18+ 'Adulto'.\nedad = 15\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 22, t: "22. Sistema de Calificaciones", code: "# INSTRUCCIÓN: Si nota >= 9 'Excelente', si nota >= 7 'Bueno', sino 'Insuficiente'.\nnota = 8.5\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 23, t: "23. Calculadora de Semáforo", code: "# INSTRUCCIÓN: Según 'color' ('verde', 'amarillo', 'rojo'), imprime la acción recomendada.\ncolor = 'amarillo'\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 24, t: "24. Triángulos por Lados", code: "# INSTRUCCIÓN: Dados a, b, c; imprime si es 'Equilátero' (3 iguales), 'Isósceles' (2 iguales) o 'Escaleno'.\na, b, c = 5, 5, 8\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 25, t: "25. Determinar Bisiesto", code: "# INSTRUCCIÓN: Si 'anio' es divisible por 4 y no por 100 (o divisible por 400), imprime 'Bisiesto'.\nanio = 2024\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 26, t: "26. Descuento por Categoria", code: "# INSTRUCCIÓN: Categoria 'A' (20% desc), 'B' (10% desc), cualquier otra sin descuento.\ncategoria = 'A'\nprecio = 100\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 27, t: "27. Rango de Números", code: "# INSTRUCCIÓN: Verifica si 'num' está entre 10 y 50 inclusive.\nnum = 30\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 28, t: "28. Autenticación Doble", code: "# INSTRUCCIÓN: Si usuario es 'admin' Y pin es 9999, imprime 'Acceso Total', sino 'Denegado'.\nusuario, pin = 'admin', 9999\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 29, t: "29. Estación del Año", code: "# INSTRUCCIÓN: Según el número de 'mes' (1 al 12), indica a qué estación pertenece.\nmes = 6\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 30, t: "30. Calculadora IMC", code: "# INSTRUCCIÓN: Dado imc = peso / (altura**2), clasifica: <18.5 'Bajo peso', 18.5-24.9 'Normal', >=25 'Sobrepeso'.\npeso = 70\naltura = 1.75\n\n# Escribe tu código aquí abajo:\n" }
+            { id: 21, t: "21. Clasificar Edad", instr: "Clasifica según 'edad': menor a 12 'Niño', 12-17 'Joven', 18+ 'Adulto'.", code: "edad = 15\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 22, t: "22. Sistema de Calificaciones", instr: "Si nota >= 9 'Excelente', si nota >= 7 'Bueno', sino 'Insuficiente'.", code: "nota = 8.5\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 23, t: "23. Calculadora de Semáforo", instr: "Según 'color' ('verde', 'amarillo', 'rojo'), imprime la acción recomendada.", code: "color = 'amarillo'\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 24, t: "24. Triángulos por Lados", instr: "Dados a, b, c; imprime si es 'Equilátero', 'Isósceles' o 'Escaleno'.", code: "a, b, c = 5, 5, 8\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 25, t: "25. Determinar Bisiesto", instr: "Si 'anio' es divisible por 4 y no por 100 (o divisible por 400), imprime 'Bisiesto'.", code: "anio = 2024\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 26, t: "26. Descuento por Categoria", instr: "Categoria 'A' (20% desc), 'B' (10% desc), cualquier otra sin descuento.", code: "categoria = 'A'\nprecio = 100\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 27, t: "27. Rango de Números", instr: "Verifica si 'num' está entre 10 y 50 inclusive.", code: "num = 30\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 28, t: "28. Autenticación Doble", instr: "Si usuario es 'admin' Y pin es 9999, imprime 'Acceso Total', sino 'Denegado'.", code: "usuario, pin = 'admin', 9999\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 29, t: "29. Estación del Año", instr: "Según el número de 'mes' (1 al 12), indica a qué estación pertenece.", code: "mes = 6\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 30, t: "30. Calculadora IMC", instr: "Dado imc = peso / (altura**2), clasifica: <18.5 'Bajo peso', 18.5-24.9 'Normal', >=25 'Sobrepeso'.", code: "peso = 70\naltura = 1.75\n\n# Escribe tu código aquí abajo:\n" }
         ];
 
         let editor;
@@ -93,6 +104,8 @@
                 tabSize: 4,
                 trimAutoWhitespace: true
             });
+            document.getElementById('texto-instruccion').innerText = ejercicios[0].instr;
+            document.getElementById('title').innerText = ejercicios[0].t;
         });
 
         const listContainer = document.getElementById('lista');
@@ -104,12 +117,16 @@
                 document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
                 d.classList.add('active');
                 document.getElementById('title').innerText = ej.t;
+                document.getElementById('texto-instruccion').innerText = ej.instr;
+                
+                // Limpiar la consola y mensajes automáticamente al cambiar de ejercicio
+                document.getElementById('consola').innerText = "";
+                document.getElementById('ia').innerHTML = "";
+                
                 editor.setValue(ej.code);
             };
             listContainer.appendChild(d);
         });
-
-        document.getElementById('title').innerText = ejercicios[0].t;
 
         async function ejecutar() {
             const consoleEl = document.getElementById('consola');
