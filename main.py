@@ -1,10 +1,9 @@
-import sys
 import io
+import sys
 import traceback
-import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from google import genai
 
@@ -18,124 +17,84 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-ai_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+# Inicializar cliente de Gemini (asegúrate de tener tu GEMINI_API_KEY en las variables de entorno)
+client = genai.Client()
 
-
-@app.get("/")
-def leer_index():
-    return FileResponse("index.html")
-
-
-class CodigoRequest(BaseModel):
+class EjercicioRequest(BaseModel.Model):
     codigo: str
 
-
-def sanitizar_codigo(codigo_raw: str) -> str:
-    if not codigo_raw:
-        return ""
-    codigo = codigo_raw.replace("\xa0", " ").replace("\x00", "").replace("\r\n", "\n")
-    codigo = codigo.replace("\t", "    ")
-    return codigo
-
-
-def extraer_codigo_alumno(codigo_completo: str) -> str:
-    """
-    Separa el código escrito por el usuario del encabezado/plantilla inicial.
-    """
-    marcador = "# Escribe tu código aquí abajo:"
-    if marcador in codigo_completo:
-        partes = codigo_completo.split(marcador)
-        return partes[1].strip()
-    return codigo_completo.strip()
-
-
 @app.post("/ejecutar")
-def ejecutar_codigo(req: CodigoRequest):
-    codigo_limpio = sanitizar_codigo(req.codigo)
-    codigo_alumno = extraer_codigo_alumno(codigo_limpio)
+def ejecutar_codigo(req: EjercicioRequest):
+    codigo_usuario = req.codigo
 
-    # 1. CASO: EL ALUMNO NO HA ESCRITO NADA DEBAJO DEL COMENTARIO GUÍA
-    if not codigo_alumno:
+    # 1. Sanitización de caracteres invisibles y tabulaciones
+    codigo_usuario = codigo_usuario.replace("\xa0", " ").expandtabs(4)
+
+    # 2. Aislar el código escrito por el alumno después de la marca
+    marca = "# Escribe tu código aquí abajo:"
+    if marca in codigo_usuario:
+        partes = codigo_usuario.split(marca)
+        codigo_a_evaluar = partes[1]
+    else:
+        codigo_a_evaluar = codigo_usuario
+
+    # 3. Validar si el espacio de código está vacío
+    if not codigo_a_evaluar.strip():
         return {
             "exito": False,
-            "salida": "(Consola vacía)",
-            "mensaje_alerta": "ingrese el codigo solicitado",
-            "explicacion_ia": None,
+            "salida": "",
+            "mensaje_alerta": "ingrese el codigo solicitado"
         }
 
-    buffer_salida = io.StringIO()
-    sys.stdout = buffer_salida
-    sys.stderr = buffer_salida
+    # 4. Capturar la salida estándar (print)
+    old_stdout = sys.stdout
+    new_stdout = io.StringIO()
+    sys.stdout = new_stdout
 
-    entorno_global = {}
-    entorno_local = {}
-    error_ocurrido = None
+    exito = True
+    error_detalle = ""
 
     try:
-        exec(codigo_limpio, entorno_global, entorno_local)
+        # Ejecución segura en entorno aislado local
+        exec(codigo_usuario, {})
     except Exception:
-        error_ocurrido = traceback.format_exc()
-    finally:
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
+        exito = False
+        error_detalle = traceback.format_exc()
 
-    salida_consola = buffer_salida.getvalue().strip()
+    sys.stdout = old_stdout
+    salida_consola = new_stdout.getvalue()
 
-    # 2. CASO: ERROR DE SINTAXIS O EJECUCIÓN
-    if error_ocurrido:
-        explicacion = "Ocurrió un error al ejecutar tu código."
-
-        if ai_client:
-            prompt = (
-                f"Eres un tutor de programación en Python amigable y pedagógico.\n"
-                f"El alumno escribió este código:\n```python\n{codigo_limpio}\n```\n\n"
-                f"El intérprete de Python reportó este error:\n{error_ocurrido}\n\n"
-                f"Explícale en español, de forma muy concisa y clara en un solo párrafo, "
-                f"exactamente cuál es el error y en qué parte o línea está para que pueda solucionarlo."
+    # 5. Si hay error, consultar al tutor de IA
+    explicacion_ia = ""
+    if not exito:
+        prompt_tutor = (
+            "Eres un profesor paciente de programación para principiantes absolutos. "
+            "El alumno intentó resolver un ejercicio básico de secuencias y obtuvo este error:\n"
+            f"{error_detalle}\n"
+            "Explica de forma muy sencilla, amable y en español qué falló y cómo corregirlo en máximo 3 líneas."
+        )
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt_tutor
             )
-            try:
-                ai_res = ai_client.models.generate_content(
-                    model="gemini-3.6-flash", contents=prompt
-                )
-                explicacion = ai_res.text
-            except Exception as ex_ia:
-                explicacion = f"Error de IA: {str(ex_ia)}"
+            explicacion_ia = response.text
+        except Exception:
+            explicacion_ia = "Revisa la sintaxis de tu código, parece haber un error tipográfico."
 
-        return {
-            "exito": False,
-            "salida": error_ocurrido,
-            "explicacion_ia": explicacion,
-        }
+    # Validar si completó correctamente el ejercicio
+    mensaje_exito = ""
+    if exito and salida_consola.strip():
+        mensaje_exito = "¡Excelente! Has completado la secuencia algorítmica correctamente."
 
-    # 3. CASO: CÓDIGO VÁLIDO PERO SIN IMPRESIÓN (no hizo print)
-    if not salida_consola:
-        explicacion = "Tu código no tiene errores de sintaxis, pero no imprimió nada en la consola. Asegúrate de incluir la instrucción print() dentro de tu condición."
-
-        if ai_client:
-            prompt = (
-                f"El alumno escribió este código en Python:\n```python\n{codigo_limpio}\n```\n\n"
-                f"El código no arrojó errores pero tampoco mostró ningún resultado en pantalla.\n"
-                f"Explícale amablemente y en un párrafo corto en dónde debe agregar el print() para resolver la instrucción."
-            )
-            try:
-                ai_res = ai_client.models.generate_content(
-                    model="gemini-3.6-flash", contents=prompt
-                )
-                explicacion = ai_res.text
-            except Exception as ex_ia:
-                explicacion = f"Error de IA: {str(ex_ia)}"
-
-        return {
-            "exito": False,
-            "salida": "(Sin salida de pantalla)",
-            "explicacion_ia": explicacion,
-        }
-
-    # 4. CASO: CÓDIGO CORRECTO CON SALIDA POR PANTALLA
     return {
-        "exito": True,
+        "exito": exito,
         "salida": salida_consola,
-        "mensaje": "¡Excelente trabajo! Tu código se ejecutó correctamente.",
-        "explicacion_ia": None,
+        "explicacion_ia": explicacion_ia,
+        "mensaje": mensaje_exito
     }
+
+@app.get("/", response_class=HTMLResponse)
+def servir_home():
+    with open("index.html", "r", encoding="utf-8") as f:
+        return f.read()

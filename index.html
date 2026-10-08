@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aprende Python 100% Nube</title>
+    <title>Curso de Algoritmos: Secuencias y Operaciones</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: sans-serif; display: flex; height: 100vh; background: #1e1e1e; color: #fff; }
-        #sidebar { width: 320px; background: #252526; border-right: 1px solid #3c3c3c; padding: 15px; overflow-y: auto; }
+        #sidebar { width: 340px; background: #252526; border-right: 1px solid #3c3c3c; padding: 15px; overflow-y: auto; }
         .item { padding: 10px; margin-bottom: 6px; background: #2d2d2d; border-radius: 4px; cursor: pointer; font-size: 13px; }
         .item:hover, .item.active { background: #007acc; }
         #main { flex: 1; display: flex; flex-direction: column; }
         #bar { height: 45px; background: #2d2d2d; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
         #btn { background: #28a745; color: white; border: none; padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
         
-        /* Contenedor de la instrucción fuera del editor */
         #instruccion-container { background: #2d2d2d; padding: 12px 15px; border-bottom: 1px solid #3c3c3c; font-size: 14px; color: #d4d4d4; }
         #instruccion-container strong { color: #4ec9b0; }
 
@@ -28,16 +27,15 @@
 </head>
 <body>
     <div id="sidebar">
-        <h3 style="margin-bottom:10px; color:#4ec9b0;">30 Ejercicios IF</h3>
+        <h3 style="margin-bottom:10px; color:#4ec9b0;">Módulo 1: Secuencias (30)</h3>
         <div id="lista"></div>
     </div>
     <div id="main">
         <div id="bar">
             <span id="title" style="font-weight:bold;"></span>
-            <button id="btn" onclick="ejecutar()">▶ Ejecutar</button>
+            <button id="btn" onclick="ejecutar()">▶ Ejecutar Algoritmo</button>
         </div>
         
-        <!-- Panel visible de instrucción -->
         <div id="instruccion-container">
             <strong>Instrucción:</strong> <span id="texto-instruccion">Selecciona un ejercicio</span>
         </div>
@@ -52,41 +50,36 @@
 
     <script>
         const ejercicios = [
-            // BÁSICOS (1 - 10)
-            { id: 1, t: "1. Número Positivo", instr: "Si la variable 'numero' es mayor a 0, imprime 'Es positivo'.", code: "numero = 10\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 2, t: "2. Mayoría de Edad", instr: "Si 'edad' es mayor o igual a 18, imprime 'Mayor de edad'.", code: "edad = 20\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 3, t: "3. Temperatura Alta", instr: "Si 'temp' es superior a 30, imprime 'Hace calor'.", code: "temp = 35\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 4, t: "4. Contraseña Correcta", instr: "Si 'clave' es igual a '1234', imprime 'Acceso concedido'.", code: "clave = '1234'\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 5, t: "5. Calificación Aprobatoria", instr: "Si 'nota' es mayor o igual a 7, imprime 'Aprobado'.", code: "nota = 8\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 6, t: "6. Descuento Disponible", instr: "Si 'monto' es mayor a 100, imprime 'Aplica descuento'.", code: "monto = 150\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 7, t: "7. Número Cero", instr: "Si 'num' es exactamente 0, imprime 'El número es cero'.", code: "num = 0\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 8, t: "8. Sistema Encendido", instr: "Si 'activo' es True, imprime 'El sistema está activo'.", code: "activo = True\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 9, t: "9. Alerta de Velocidad", instr: "Si 'velocidad' supera los 90, imprime 'Exceso de velocidad'.", code: "velocidad = 95\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 10, t: "10. Lista No Vacía", instr: "Si 'elementos' tiene más de 0 elementos (usa len), imprime 'La lista tiene datos'.", code: "elementos = [1, 2, 3]\n\n# Escribe tu código aquí abajo:\n" },
-
-            // INTERMEDIOS (11 - 20)
-            { id: 11, t: "11. Par o Impar", instr: "Si 'num' es par imprime 'Par', de lo contrario imprime 'Impar'.", code: "num = 7\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 12, t: "12. Positivo o Negativo", instr: "Si 'n' es mayor o igual a 0 imprime 'Positivo', sino 'Negativo'.", code: "n = -5\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 13, t: "13. Pase de Entrada", instr: "Si 'tiene_ticket' es True imprime 'Bienvenido', sino 'Acceso denegado'.", code: "tiene_ticket = False\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 14, t: "14. Comparar Dos Números", instr: "Imprime cuál de los dos números (a o b) es el mayor.", code: "a = 15\nb = 20\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 15, t: "15. Validar Usuario", instr: "Si 'usuario' es 'admin' imprime 'Hola Admin', sino 'Hola Usuario'.", code: "usuario = 'invitado'\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 16, t: "16. Stock Disponible", instr: "Si 'stock' es mayor a 0 imprime 'Disponible', sino 'Agotado'.", code: "stock = 0\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 17, t: "17. Múltiplo de 5", instr: "Si 'num' es múltiplo de 5 imprime 'Múltiplo de 5', sino 'No es múltiplo'.", code: "num = 25\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 18, t: "18. Clima Lluvioso", instr: "Si 'lloviendo' es True imprime 'Lleva sombrilla', sino 'Disfruta el día'.", code: "lloviendo = True\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 19, t: "19. Longitud de Texto", instr: "Si el texto tiene más de 5 caracteres imprime 'Texto largo', sino 'Texto corto'.", code: "texto = 'Hola'\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 20, t: "20. Batería Baja", instr: "Si 'bateria' es menor o igual a 15 imprime 'Conectar cargador', sino 'Batería suficiente'.", code: "bateria = 12\n\n# Escribe tu código aquí abajo:\n" },
-
-            // AVANZADOS (21 - 30)
-            { id: 21, t: "21. Clasificar Edad", instr: "Clasifica según 'edad': menor a 12 'Niño', 12-17 'Joven', 18+ 'Adulto'.", code: "edad = 15\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 22, t: "22. Sistema de Calificaciones", instr: "Si nota >= 9 'Excelente', si nota >= 7 'Bueno', sino 'Insuficiente'.", code: "nota = 8.5\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 23, t: "23. Calculadora de Semáforo", instr: "Según 'color' ('verde', 'amarillo', 'rojo'), imprime la acción recomendada.", code: "color = 'amarillo'\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 24, t: "24. Triángulos por Lados", instr: "Dados a, b, c; imprime si es 'Equilátero', 'Isósceles' o 'Escaleno'.", code: "a, b, c = 5, 5, 8\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 25, t: "25. Determinar Bisiesto", instr: "Si 'anio' es divisible por 4 y no por 100 (o divisible por 400), imprime 'Bisiesto'.", code: "anio = 2024\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 26, t: "26. Descuento por Categoria", instr: "Categoria 'A' (20% desc), 'B' (10% desc), cualquier otra sin descuento.", code: "categoria = 'A'\nprecio = 100\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 27, t: "27. Rango de Números", instr: "Verifica si 'num' está entre 10 y 50 inclusive.", code: "num = 30\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 28, t: "28. Autenticación Doble", instr: "Si usuario es 'admin' Y pin es 9999, imprime 'Acceso Total', sino 'Denegado'.", code: "usuario, pin = 'admin', 9999\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 29, t: "29. Estación del Año", instr: "Según el número de 'mes' (1 al 12), indica a qué estación pertenece.", code: "mes = 6\n\n# Escribe tu código aquí abajo:\n" },
-            { id: 30, t: "30. Calculadora IMC", instr: "Dado imc = peso / (altura**2), clasifica: <18.5 'Bajo peso', 18.5-24.9 'Normal', >=25 'Sobrepeso'.", code: "peso = 70\naltura = 1.75\n\n# Escribe tu código aquí abajo:\n" }
+            { id: 1, t: "1. Saludo Básico", instr: "Imprime en pantalla el texto 'Hola, bienvenido al curso de programación'.", code: "# Escribe tu código aquí abajo:\nprint('Hola, bienvenido al curso de programación')" },
+            { id: 2, t: "2. Variable Numérica", instr: "Crea una variable llamada 'edad' con valor 20 e imprímela.", code: "edad = 20\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 3, t: "3. Suma de Dos Números", instr: "Declara dos variables (a = 5, b = 10), súmalas e imprime el resultado.", code: "a = 5\nb = 10\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 4, t: "4. Resta Lineal", instr: "Resta 12 menos 4 e imprime el resultado directamente con print().", code: "# Escribe tu código aquí abajo:\n" },
+            { id: 5, t: "5. Multiplicación", instr: "Multiplica 7 por 8 e imprime el resultado.", code: "# Escribe tu código aquí abajo:\n" },
+            { id: 6, t: "6. División Exacta", instr: "Divide 20 entre 4 e imprime el resultado.", code: "# Escribe tu código aquí abajo:\n" },
+            { id: 7, t: "7. Área de un Rectángulo", instr: "Calcula el área multiplicando base (8) por altura (5) y muestra el resultado.", code: "base = 8\naltura = 5\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 8, t: "8. Perímetro de Cuadrado", instr: "Calcula el perímetro multiplicando un lado de valor 6 por 4.", code: "lado = 6\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 9, t: "9. Minutos a Segundos", instr: "Convierte 5 minutos a segundos multiplicando por 60.", code: "minutos = 5\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 10, t: "10. Mitad de un Número", instr: "Calcula la mitad de la variable 'numero' (valor 50) dividiendo entre 2.", code: "numero = 50\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 11, t: "11. El Doble", instr: "Multiplica la variable 'num' (valor 14) por 2 y muéstralo.", code: "num = 14\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 12, t: "12. El Triple", instr: "Multiplica la variable 'num' (valor 9) por 3 y muéstralo.", code: "num = 9\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 13, t: "13. Suma de Tres", instr: "Suma tres variables numéricas (n1=4, n2=6, n3=10) e imprime el total.", code: "n1 = 4\nn2 = 6\nn3 = 10\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 14, t: "14. Promedio Simple", instr: "Calcula el promedio de tres notas (8, 9, 10) sumándolas y dividiendo entre 3.", code: "n1 = 8\nn2 = 9\nn3 = 10\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 15, t: "15. Cálculo de Propina", instr: "Calcula el 10% de propina sobre una cuenta de 150 (cuenta * 0.10).", code: "cuenta = 150\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 16, t: "16. Descuento del 20%", instr: "Aplica un descuento del 20% a un producto que cuesta 200 (multiplicando por 0.80).", code: "precio = 200\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 17, t: "17. Conversión de Moneda", instr: "Convierte 50 dólares a otra moneda multiplicando por una tasa fija de 0.92.", code: "dolares = 50\ntasa = 0.92\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 18, t: "18. Cálculo de Velocidad", instr: "Calcula la velocidad dividiendo distancia (100) entre tiempo (2).", code: "distancia = 100\ntiempo = 2\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 19, t: "19. Espacio Recorrido", instr: "Calcula el espacio multiplicando velocidad (60) por tiempo (3 horas).", code: "velocidad = 60\ntiempo = 3\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 20, t: "20. Intercambio de Variables", instr: "Intercambia los valores de a (3) y b (7) usando una variable auxiliar.", code: "a = 3\nb = 7\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 21, t: "21. Área de Triángulo", instr: "Calcula el área multiplicando base (10) por altura (4) y dividiendo entre 2.", code: "base = 10\naltura = 4\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 22, t: "22. Longitud Circunferencia", instr: "Calcula la longitud multiplicando 2 por 3.1416 y por el radio (5).", code: "radio = 5\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 23, t: "23. Área de Círculo", instr: "Calcula el área del círculo multiplicando 3.1416 por el radio al cuadrado (radio ** 2, radio=3).", code: "radio = 3\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 24, t: "24. Sueldo Diario", instr: "Multiplica las horas trabajadas (8) por el pago por hora (12).", code: "horas = 8\npago = 12\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 25, t: "25. Sueldo Semanal", instr: "Calcula el sueldo semanal sabiendo que el diario es 96 y se trabajan 5 días.", code: "sueldo_diario = 96\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 26, t: "26. Precio con IVA", instr: "Calcula el precio final de un artículo de 150 sumándole el 12% de IVA (precio * 1.12).", code: "precio = 150\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 27, t: "27. Datos Personales", instr: "Declara variables 'nombre' ('Ana') y 'edad' (25), e imprímelas juntas.", code: "nombre = 'Ana'\nedad = 25\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 28, t: "28. Operación Combinada", instr: "Resuelve la expresión aritmética: 10 + 5 * 2 e imprime el resultado.", code: "# Escribe tu código aquí abajo:\n" },
+            { id: 29, t: "29. Días Vividos", instr: "Calcula los días vividos aproximados multiplicando la edad (18 años) por 365.", code: "edad = 18\n\n# Escribe tu código aquí abajo:\n" },
+            { id: 30, t: "30. Suma de Tres Variables", instr: "Declara x=10, y=20, z=30 en una sola línea e imprime la suma de las tres.", code: "x, y, z = 10, 20, 30\n\n# Escribe tu código aquí abajo:\n" }
         ];
 
         let editor;
@@ -119,7 +112,6 @@
                 document.getElementById('title').innerText = ej.t;
                 document.getElementById('texto-instruccion').innerText = ej.instr;
                 
-                // Limpiar la consola y mensajes automáticamente al cambiar de ejercicio
                 document.getElementById('consola').innerText = "";
                 document.getElementById('ia').innerHTML = "";
                 
